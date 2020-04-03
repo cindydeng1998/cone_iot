@@ -184,37 +184,11 @@ void setup() {
         // action phase of the program, sending messages to the IoT Hub in the cloud.
         do
         {
-          Wire.requestFrom(0, 8);   
-          int i = 0;
-          while(Wire.available())    // slave may send less than requested
-          {
-            char c = Wire.read();    // receive a byte as character
-            telemetry_msg[i] = c;
-            if(i == 7)
-            {
-              i = 0;
-            }
-            else{
-              i++;
-            }
-          }
-          Serial.println("raaaaawrrr");
-          Serial.println(telemetry_msg);
             if (messages_sent < MESSAGE_COUNT)
             {
                 // Construct the iothub message from a string or a byte array
                 message_handle = IoTHubMessage_CreateFromString(telemetry_msg);
                 //message_handle = IoTHubMessage_CreateFromByteArray((const unsigned char*)msgText, strlen(msgText)));
-
-                // Set Message property
-                /*(void)IoTHubMessage_SetMessageId(message_handle, "MSG_ID");
-                (void)IoTHubMessage_SetCorrelationId(message_handle, "CORE_ID");
-                (void)IoTHubMessage_SetContentTypeSystemProperty(message_handle, "application%2fjson");
-                (void)IoTHubMessage_SetContentEncodingSystemProperty(message_handle, "utf-8");*/
-
-                // Add custom properties to message
-                // (void)IoTHubMessage_SetProperty(message_handle, "property_key", "property_value");
-
                 LogInfo("Sending message %d to IoTHub\r\n", (int)(messages_sent + 1));
                 result = IoTHubDeviceClient_LL_SendEventAsync(device_ll_handle, message_handle, send_confirm_callback, NULL);
                 // The message is copied to the sdk so the we can destroy it
@@ -268,6 +242,22 @@ void loop(void)
         String s1 = Serial.readStringUntil('\n');// s1 is String type variable.
         Serial.print("Received Data: ");
         Serial.println(s1);//display same received Data back in serial monitor.
+
+        Wire.requestFrom(0, 8);   
+        int i = 0;
+        while(Wire.available())    // slave may send less than requested
+        {
+          char c = Wire.read();    // receive a byte as character
+          telemetry_msg[i] = c;
+          if(i == 7)
+          {
+            i = 0;
+            telemetry_msg[0] = '\0';
+          }
+          else{
+            i++;
+          }
+        }
         
         int e_start = s1.indexOf('e');
         String ebit = (String) s1.substring(e_start, e_start+4);
@@ -280,7 +270,3 @@ void loop(void)
 
  
 }
-
-
-
-// magic: az iot hub monitor-events --hub-name ConeProject --output table
