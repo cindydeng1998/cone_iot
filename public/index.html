@@ -1,0 +1,145 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/conedata.js" type="text/javascript" charset="utf-8"></script>
+    <link href="css/style.css" rel="stylesheet" />
+    
+    <style>
+        canvas {
+            border:1px solid #d3d3d3;
+            background-color: #f1f1f1;
+        }
+    </style>
+
+    <title>Cone Data</title>
+</head>
+
+<body onload="startDraw()">
+    <div>
+        <canvas id="iotChart"></canvas>
+    </div>
+    <script>
+        var cones;
+        var myBackground;
+        
+        function startDraw() {
+            cone1 = new component(30, 40, "cone.png", 110, 100, "image");
+            cone2 = new component(30, 40, "cone.png", 210, 100, "image");
+            cone3 = new component(30, 40, "cone.png", 310, 100, "image");
+            cone4 = new component(30, 40, "cone.png", 110, 200, "image");
+            cone5 = new component(30, 40, "cone.png", 210, 200, "image");
+            cone6 = new component(30, 40, "cone.png", 310, 200, "image");
+            // cone7 = new component(30, 40, "cone.png", 110, 300, "image");
+            // cone8 = new component(30, 40, "cone.png", 210, 300, "image");
+            // cone9 = new component(30, 40, "cone.png", 310, 300, "image");
+            // cones = [cone1, cone2, cone3, cone4, cone5, cone6, cone7, cone8, cone9];
+            cones = [cone1, cone2, cone3, cone4, cone5, cone6];
+            myBackground = new component(656, 400, "background.jpg", 0, 0, "background");
+            myGameArea.start();
+        }
+        
+        var myGameArea = {
+            canvas : document.getElementById("iotChart"),
+            start : function() {
+                this.canvas.width = 700;
+                this.canvas.height = 400;
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.interval = setInterval(updateGameArea, 20);
+                },
+            clear : function() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            },
+            stop : function() {
+                clearInterval(this.interval);
+            }
+        }
+        
+        function component(width, height, color, x, y, type) {
+            this.type = type;
+            if (type == "image" || type == "background") {
+                this.image = new Image();
+                this.image.src = color;
+            }
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;    
+            this.update = function() {
+                ctx = myGameArea.context;
+                if (type == "image" || type == "background") {
+                    ctx.drawImage(this.image, 
+                        this.x, 
+                        this.y,
+                        this.width, this.height);
+                if (type == "background") {
+                    ctx.drawImage(this.image, 
+                        this.x + this.width, 
+                        this.y,
+                        this.width, this.height);
+                }
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+            }
+            this.newPos = function() {
+                console.log("cone " + "is located at");
+                console.log("x: " + this.x);
+                console.log("y: " + this.y);
+                if (this.type == "background") {
+                    if (this.x == -(this.width)) {
+                        this.x = 0;
+                    }
+                }
+            }    
+        }
+        
+        function updateGameArea() {
+            myGameArea.clear();
+            myBackground.update();
+            // get new locations from the conedata.js
+            for (i = 0; i < (cones.length); i++)
+            {
+                cones[i].newPos();
+                cones[i].update();
+            }
+        }
+
+        
+        function clearmove() {
+            cone1.image.src = "light.png";
+            cone2.image.src = "cone.png";
+            for (i = 0; i < cones.length; i++)
+            {
+                if(cones[i].image.src == "cone.png")
+                {
+                    cones[i].image.src = "light.png";
+                }
+                else
+                {
+                    cones[i].image.src = "cone.png";
+                }
+            }
+        }
+    </script>
+
+    <h1 class="flexHeader">
+        <span>
+            <span id="deviceCount">0 devices</span>
+            <select id="listOfDevices" class="select_box"></select>
+        </span>
+        <span>Untitled Cone Project: Real Time Cone Map</span>
+    </h1>
+    
+    
+</body>
+
+</html>

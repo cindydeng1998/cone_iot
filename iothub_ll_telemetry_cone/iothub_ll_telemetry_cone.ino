@@ -46,8 +46,9 @@ static size_t g_message_count_send_confirmations = 0;
 
 IOTHUB_MESSAGE_HANDLE message_handle;
 size_t messages_sent = 0;
-char telemetry_msg[9] = "";
-
+char telemetry_msg[750] = "";
+String telemetry_str = "{\"numCones\": 6,   \"deviceToCloud\": true,   \"cone_dists\": {     \"cone1\":      {       \"dist1\": 5623.095233,       \"dist2\": 3444.19802,       \"dist3\": 4451.550404     },     \"cone2\": {       \"dist1\": 4387.923541,       \"dist2\": 1813.916481,       \"dist3\": 3861.944847     },     \"cone3\": {       \"dist1\": 1378.12191,       \"dist2\": 1245.423623,       \"dist3\": 1220.33479     },     \"cone4\": {       \"dist1\": 4485.423614,       \"dist2\": 2167.169813,       \"dist3\": 4223.62593     },     \"cone5\": {       \"dist1\": 569.9938596,       \"dist2\": 3191.440584,       \"dist3\": 1737.465971     },     \"cone6\": {       \"dist1\": 4233.680196,       \"dist2\": 1614.455946,       \"dist3\": 3595.871661     }        } }";
+//String telemetry_str = "{ \"numCones\": 6, \"deviceToCloud\": true, \"cone_dists\": { \"cone1\": { \"dist1\": 5623.095233, \"dist2\": 3444.19802, \"dist3\": 4451.550404 }, \"cone2\": { \"dist1\": 4387.923541, \"dist2\": 1813.916481, \"dist3\": 3861.944847 }, \"cone3\": { \"dist1\": 1378.12191, \"dist2\": 1245.423623, \"dist3\": 1220.33479 } } }";
 // Select the Protocol to use with the connection
 #ifdef SAMPLE_MQTT
     IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol = MQTT_Protocol;
@@ -132,8 +133,8 @@ static void connection_status_callback(IOTHUB_CLIENT_CONNECTION_STATUS result, I
 
 void setup() {
     int result = 0;
-    telemetry_msg[8] = '\0';
-
+    //telemetry_msg[8] = '\0';
+    telemetry_str.toCharArray(telemetry_msg,telemetry_str.length()+1);
     sample_init(ssid, pass);
     Wire.begin();       
 
@@ -189,7 +190,7 @@ void setup() {
           while(Wire.available())    // slave may send less than requested
           {
             char c = Wire.read();    // receive a byte as character
-            telemetry_msg[i] = c;
+            //telemetry_msg[i] = c;
             if(i == 7)
             {
               i = 0;
@@ -229,7 +230,7 @@ void setup() {
             }
 
             IoTHubDeviceClient_LL_DoWork(device_ll_handle);
-            ThreadAPI_Sleep(3);
+            ThreadAPI_Sleep(300); // three seconds
           
 #ifdef is_esp_board
             // Read from local serial 
