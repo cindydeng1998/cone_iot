@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <AzureIoTHub.h>
-#include<Wire.h>    
 
 
 // CAVEAT: This sample is to demonstrate azure IoT client concepts only and is not a guide design principles or style
@@ -47,8 +46,10 @@ static size_t g_message_count_send_confirmations = 0;
 IOTHUB_MESSAGE_HANDLE message_handle;
 size_t messages_sent = 0;
 char telemetry_msg[750] = "";
-String telemetry_str = "{\"numCones\": 6,   \"deviceToCloud\": true,   \"cone_dists\": {     \"cone1\":      {       \"dist1\": 5623.095233,       \"dist2\": 3444.19802,       \"dist3\": 4451.550404     },     \"cone2\": {       \"dist1\": 4387.923541,       \"dist2\": 1813.916481,       \"dist3\": 3861.944847     },     \"cone3\": {       \"dist1\": 1378.12191,       \"dist2\": 1245.423623,       \"dist3\": 1220.33479     },     \"cone4\": {       \"dist1\": 4485.423614,       \"dist2\": 2167.169813,       \"dist3\": 4223.62593     },     \"cone5\": {       \"dist1\": 569.9938596,       \"dist2\": 3191.440584,       \"dist3\": 1737.465971     },     \"cone6\": {       \"dist1\": 4233.680196,       \"dist2\": 1614.455946,       \"dist3\": 3595.871661     }        } }";
-//String telemetry_str = "{ \"numCones\": 6, \"deviceToCloud\": true, \"cone_dists\": { \"cone1\": { \"dist1\": 5623.095233, \"dist2\": 3444.19802, \"dist3\": 4451.550404 }, \"cone2\": { \"dist1\": 4387.923541, \"dist2\": 1813.916481, \"dist3\": 3861.944847 }, \"cone3\": { \"dist1\": 1378.12191, \"dist2\": 1245.423623, \"dist3\": 1220.33479 } } }";
+//String telemetry_str = "{\"numCones\": 5,   \"deviceToCloud\": true,   \"cone_dists\": {     \"cone1\":      {       \"dist1\": 279.5084972,       \"dist2\": 442.2951503,       \"dist3\": 577.169819     },     \"cone2\": {       \"dist1\": 325.9601203,       \"dist2\": 360.5551275,       \"dist3\": 452.7692569     },     \"cone3\": {       \"dist1\": 279.5084972,       \"dist2\": 195.2562419,       \"dist3\": 425     },     \"cone4\": {       \"dist1\": 353.5533906,       \"dist2\": 79.0569415,       \"dist3\": 388.9087297     },     \"cone5\": {       \"dist1\": 450,       \"dist2\": 79.0569415,       \"dist3\": 369.1205765     },     \"cone6\": {       \"dist1\": 4233.680196,       \"dist2\": 1614.455946,       \"dist3\": 3595.871661     }        } }";
+//String telemetry_str = "{\"numCones\": 5,   \"deviceToCloud\": true,   \"cone_dists\": {     \"cone1\":      {       \"dist1\": 279.5084972,       \"dist2\": 442.2951503,       \"dist3\": 577.169819     },     \"cone2\": {       \"dist1\": 325.9601203,       \"dist2\": 360.5551275,       \"dist3\": 452.7692569     },     \"cone3\": {       \"dist1\": 254.95,       \"dist2\": 145.77,       \"dist3\": 465     },     \"cone4\": {       \"dist1\": 416.1,       \"dist2\": 251.25,       \"dist3\": 292.6     },     \"cone5\": {       \"dist1\": 450,       \"dist2\": 79.0569415,       \"dist3\": 369.1205765     },     \"cone6\": {       \"dist1\": 4233.680196,       \"dist2\": 1614.455946,       \"dist3\": 3595.871661     }        } }";
+String telemetry_str = "{\"numCones\":5,\"deviceToCloud\":true,\"cone_ds\":{\"cone1\":{\"lightOn\":false,\"d1\":5623.095233,\"d2\":3444.19802,\"d3\":4451.550404},\"cone2\":{\"lightOn\":false,\"d1\":4387.923541,\"d2\":1813.916481,\"d3\":3861.944847},\"cone3\":{\"lightOn\":false,\"d1\":1378.12191,\"d2\":1245.423623,\"d3\":1220.33479},\"cone4\":{\"lightOn\":false,\"d1\":4485.423614,\"d2\":2167.169813,\"d3\":4223.62593},\"cone5\":{\"lightOn\":false,\"d1\":569.9938596,\"d2\":3191.440584,\"d3\":1737.465971}}}";
+
 // Select the Protocol to use with the connection
 #ifdef SAMPLE_MQTT
     IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol = MQTT_Protocol;
@@ -68,7 +69,7 @@ int receiveContext = 0;
  */
 static IOTHUBMESSAGE_DISPOSITION_RESULT receive_message_callback(IOTHUB_MESSAGE_HANDLE message, void* userContextCallback)
 {
-    int* counter = (int*)userContextCallback;
+  int* counter = (int*)userContextCallback;
     const char* buffer;
     size_t size;
     MAP_HANDLE mapProperties;
@@ -88,11 +89,16 @@ static IOTHUBMESSAGE_DISPOSITION_RESULT receive_message_callback(IOTHUB_MESSAGE_
     else
     {
         LogInfo("Received Message [%d]\r\n Message ID: %s\r\n Data: <<<%.*s>>> & Size=%d\r\n", *counter, messageId, (int)size, buffer, (int)size);
+        Serial.print(buffer);
         // If we receive the work 'quit' then we stop running
-        if (size == (strlen("quit") * sizeof(char)) && memcmp(buffer, "quit", size) == 0)
-        {
-            g_continueRunning = false;
-        }
+//        
+//        if (size == (strlen("quit") * sizeof(char)) && memcmp(buffer, "quit", size) == 0)
+//        {
+//            g_continueRunning = false;
+//        }
+//          char* printbuffer[1000];
+//          memcpy(printbuffer, buffer, (int)size);
+//          LogInfo(printbuffer);
     }
 
     /* Some device specific action code goes here... */
@@ -109,7 +115,7 @@ static void send_confirm_callback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void
     (void)userContextCallback;
     // When a message is sent this callback will get envoked
     g_message_count_send_confirmations++;
-    LogInfo("Confirm Callback");
+    LogInfo("Callback");
     // LogInfo("Confirmation callback received for message %lu with result %s\r\n", (unsigned long)g_message_count_send_confirmations, MU_ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
 }
 
@@ -123,20 +129,15 @@ static void connection_status_callback(IOTHUB_CLIENT_CONNECTION_STATUS result, I
     // This sample DOES NOT take into consideration network outages.
     if (result == IOTHUB_CLIENT_CONNECTION_AUTHENTICATED)
     {
-        LogInfo("The device client is connected to iothub\r\n");
-    }
-    else
-    {
-        LogInfo("The device client has been disconnected\r\n");
+        LogInfo("client connected to iothub\r\n");
     }
 }
 
 void setup() {
     int result = 0;
-    //telemetry_msg[8] = '\0';
     telemetry_str.toCharArray(telemetry_msg,telemetry_str.length()+1);
     sample_init(ssid, pass);
-    Wire.begin();       
+//    Wire.begin();       
 
 
     // Create the iothub handle here
@@ -147,7 +148,7 @@ void setup() {
     LogInfo("Creating IoTHub Device handle\r\n");
     if (device_ll_handle == NULL)
     {
-        LogInfo("Error AZ002: Failure createing Iothub device. Hint: Check you connection string.\r\n");
+        LogInfo("Error AZ002: Failure createing Iothub device.\r\n");
     }
     else
     {
@@ -185,21 +186,21 @@ void setup() {
         // action phase of the program, sending messages to the IoT Hub in the cloud.
         do
         {
-          Wire.requestFrom(0, 8);   
-          int i = 0;
-          while(Wire.available())    // slave may send less than requested
-          {
-            char c = Wire.read();    // receive a byte as character
-            //telemetry_msg[i] = c;
-            if(i == 7)
-            {
-              i = 0;
-            }
-            else{
-              i++;
-            }
-          }
-          Serial.println(telemetry_msg);
+//          Wire.requestFrom(0, 8);   
+//          int i = 0;
+//          while(Wire.available())    // slave may send less than requested
+//          {
+//            char c = Wire.read();    // receive a byte as character
+//            //telemetry_msg[i] = c;
+//            if(i == 7)
+//            {
+//              i = 0;
+//            }
+//            else{
+//              i++;
+//            }
+//          }
+//          Serial.println(telemetry_msg);
             if (messages_sent < MESSAGE_COUNT)
             {
                 // Construct the iothub message from a string or a byte array
@@ -226,11 +227,11 @@ void setup() {
             else if (g_message_count_send_confirmations >= MESSAGE_COUNT)
             {
                 // After all messages are all received stop running
-                g_continueRunning = false;
+//                g_continueRunning = false;
             }
 
             IoTHubDeviceClient_LL_DoWork(device_ll_handle);
-            ThreadAPI_Sleep(300); // three seconds
+            ThreadAPI_Sleep(3000); // three seconds
           
 #ifdef is_esp_board
             // Read from local serial 
@@ -239,13 +240,6 @@ void setup() {
                 Serial.print("Received Data: ");
                 Serial.println(s1);//display same received Data back in serial monitor.
 
-                // Restart device upon receipt of 'exit' call.
-                int e_start = s1.indexOf('e');
-                String ebit = (String) s1.substring(e_start, e_start+4);
-                if(ebit == "exit")
-                {
-                    ESP.restart();
-                }
             }
 #endif // is_esp_board
         } while (g_continueRunning);
@@ -266,7 +260,7 @@ void loop(void)
 #ifdef is_esp_board
     if (Serial.available()){
         String s1 = Serial.readStringUntil('\n');// s1 is String type variable.
-        Serial.print("Received Data: ");
+        Serial.print("RxData: ");
         Serial.println(s1);//display same received Data back in serial monitor.
         
         int e_start = s1.indexOf('e');

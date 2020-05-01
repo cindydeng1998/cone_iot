@@ -20,7 +20,7 @@
 
 // The protocol you wish to use should be uncommented
 //
-//#define SAMPLE_MQTT
-#define SAMPLE_HTTP
+#define SAMPLE_MQTT
+//#define SAMPLE_HTTP
 
 #endif /* IOT_CONFIGS_H */

@@ -22,25 +22,30 @@
 </head>
 
 <body onload="startDraw()">
+    <h2><span>Untitled Cone Project: Real Time Cone Map</span></h2>
     <div>
         <canvas id="iotChart"></canvas>
     </div>
     <script>
+
         var cones;
+        var anchors;
         var myBackground;
         
         function startDraw() {
-            cone1 = new component(30, 40, "cone.png", 110, 100, "image");
-            cone2 = new component(30, 40, "cone.png", 210, 100, "image");
-            cone3 = new component(30, 40, "cone.png", 310, 100, "image");
-            cone4 = new component(30, 40, "cone.png", 110, 200, "image");
-            cone5 = new component(30, 40, "cone.png", 210, 200, "image");
-            cone6 = new component(30, 40, "cone.png", 310, 200, "image");
-            // cone7 = new component(30, 40, "cone.png", 110, 300, "image");
-            // cone8 = new component(30, 40, "cone.png", 210, 300, "image");
-            // cone9 = new component(30, 40, "cone.png", 310, 300, "image");
+            cone1 = new component(30, 40, "cone.png", 75, 75, "image");
+            cone2 = new component(30, 40, "cone.png", 175, 150, "image");
+            cone3 = new component(30, 40, "cone.png", 275, 225, "image");
+            cone4 = new component(30, 40, "cone.png", 375, 300, "image");
+            cone5 = new component(30, 40, "cone.png", 475, 350, "image");
+
+            anchor1 = new component(30, 40, "anchor.png", 0, 0, "image");
+            anchor2 = new component(30, 40, "anchor.png", 0, 0, "image");
+            anchor3 = new component(30, 40, "anchor.png", 0, 0, "image");
             // cones = [cone1, cone2, cone3, cone4, cone5, cone6, cone7, cone8, cone9];
-            cones = [cone1, cone2, cone3, cone4, cone5, cone6];
+            cones = [cone1, cone2, cone3, cone4, cone5];
+            cones_light = [false, false, false, false, false];
+            anchors = [anchor1, anchor2, anchor3];
             myBackground = new component(656, 400, "background.jpg", 0, 0, "background");
             myGameArea.start();
         }
@@ -61,7 +66,58 @@
                 clearInterval(this.interval);
             }
         }
+        var clicks = 0;
+        var pattern1 = true;
+        myGameArea.canvas.addEventListener('click', function(e) {
+            // if(pattern1 == true)
+            // {
+            //     cones[clicks].image.src = "light.png";    
+            // }
+            // else
+            // {
+            //     cones[4-clicks].image.src = "light.png";
+            // }
+            // clicks++;
+            // if(clicks == 5)
+            // {
+            //     pattern1 = false;
+            // }
+            
+            for(let i = 0; i < cones.length; i++)
+            {
+                var offsetX = this.offsetLeft;
+                var offsetY = this.offsetTop;
+                var leftBound = cones[i].x + offsetX;
+                var rightBound = cones[i].x + cones[i].width + offsetX;
+                var upBound = cones[i].y + offsetY;
+                var downBound = cones[i].y + cones[i].height + offsetY;
+                if(e.clientX >= leftBound && e.clientX <= rightBound && e.clientY >= upBound && e.clientY <= downBound)
+                {   
+                   if(cones_light[i])
+                   {
+                        cones[i].image.src = "light.png";
+                        cones_light[i] = false; 
+                   }
+                   else
+                   {
+                        cones[i].image.src = "cone.png";
+                        cones_light[i] = true; 
+                   }
+                }
+            }
+
+            
+
+        }, false);
         
+        function clearLights()
+        {
+            for(let i = 0; i < cones.length; i++)
+            {
+                cones[i].image.src = "cone.png";
+            }
+        }
+
         function component(width, height, color, x, y, type) {
             this.type = type;
             if (type == "image" || type == "background") {
@@ -91,14 +147,7 @@
                 }
             }
             this.newPos = function() {
-                console.log("cone " + "is located at");
-                console.log("x: " + this.x);
-                console.log("y: " + this.y);
-                if (this.type == "background") {
-                    if (this.x == -(this.width)) {
-                        this.x = 0;
-                    }
-                }
+
             }    
         }
         
@@ -110,6 +159,10 @@
             {
                 cones[i].newPos();
                 cones[i].update();
+            }
+            for (i = 0; i < (anchors.length); i++)
+            {
+                anchors[i].update();
             }
         }
 
@@ -129,6 +182,29 @@
                 }
             }
         }
+
+        function processAnchors() {
+            a1 = {x: 1240/12250*700, y:5960/7000*400};
+            a2 = {x: 2000/12250*700, y:3450/7000*400};
+            a3 = {x: 470/12250*700, y:4851/7000*400};
+            a1.x = document.getElementById("a1x").value;
+            a1.y = document.getElementById("a1y").value;
+            a2.x = document.getElementById("a2x").value;
+            a2.y = document.getElementById("a2y").value;
+            a3.x = document.getElementById("a3x").value;
+            a3.y = document.getElementById("a3y").value;
+            
+            this.anchors[0].x = a1.x;
+            this.anchors[0].y = a1.y;
+            this.anchors[1].x = a2.x;
+            this.anchors[1].y = a2.y;
+            this.anchors[2].x = a3.x;
+            this.anchors[2].y = a3.y;
+
+        }
+        function submitLight(){
+            alert("light sequence submitted");
+        }
     </script>
 
     <h1 class="flexHeader">
@@ -136,8 +212,25 @@
             <span id="deviceCount">0 devices</span>
             <select id="listOfDevices" class="select_box"></select>
         </span>
-        <span>Untitled Cone Project: Real Time Cone Map</span>
     </h1>
+    <h2>Please Enter Your Anchor Locations (up to 3 anchors)</h2>
+    <form>
+        <label for="fname">Anchor 1 X:</label>
+        <input type="text" id="a1x" name="a1x" value="650"><br>
+        <label for="lname">Anchor 1 Y:</label>
+        <input type="text" id="a1y" name="a1y" value="25"><br><br>
+        <label for="fname">Anchor 2 X:</label>
+        <input type="text" id="a2x" name="a2y" value="400"><br>
+        <label for="lname">Anchor 2 Y:</label>
+        <input type="text" id="a2y" name="a2y" value=375><br><br>
+        <label for="fname">Anchor 3 X:</label>
+        <input type="text" id="a3x" name="a3x" value="25"><br>
+        <label for="lname">Anchor 3 Y:</label>
+        <input type="text" id="a3y" name="a3y" value="350"><br><br>
+        <input type="button" value="Submit Anchor" onclick="processAnchors()">
+    </form>
+    <input type="button" value="Clear Light Pattern" onclick="clearLights()">
+    <input type="button" value="Submit Light Pattern" onclick="submitLight()">
     
     
 </body>

@@ -29,21 +29,17 @@ $(document).ready(() => {
           // might be place where we add the x and y coords to the canvas to draw the cones
           for (let i = 0; i < this.numCones; i++)
           {
-            //   console.log("cone " + (i+1) + " is located at");
-            //   console.log("x: " + this.coneLoc[i].x);
-            //   console.log("y: " + this.coneLoc[i].y);
-              // width 10500 height 6000
-              cones[i].x = ((this.coneLoc[i].x)/12250*700);
-              cones[i].y = (this.coneLoc[i].y)/7000*400;
+              cones[i].x = ((this.coneLoc[i].x));
+              cones[i].y = (this.coneLoc[i].y);
           }
       }
 
       trilaterate_calc(dist1, dist2, dist3, coneNum)
       {
         // units can be in cm
-        var p1 = { x: 1240, y:   5960, z:  0, r: dist1};
-        var p2 = { x: 2000, y: 3450, z:  0, r: dist2};
-        var p3 = { x: 470, y: 4851, z: 0, r: dist3};
+        var p1 = { x: 25, y:  350, z:  0, r: dist1};
+        var p2 = { x: 400, y: 375, z:  0, r: dist2};
+        var p3 = { x: 650, y: 25, z: 0, r: dist3};
         var p4 = this.trilaterate(p1, p2, p3);
         
         if (p4 !== null)
@@ -232,11 +228,12 @@ $(document).ready(() => {
       try {
         const messageData_ = JSON.parse(message.data);
         var messageData = messageData_["IotData"];
+        console.log(messageData);
 
         // parse event data
         // var raw_data = JSON.parse(JSON.stringify(events[i].body));
         var numCones = messageData["numCones"];
-        console.log("numCones: " + numCones);
+        // console.log("numCones: " + numCones);
     
         // find or add device to list of tracked devices
         const existingDeviceData = trackedDevices.findDevice(messageData.DeviceId);
@@ -246,9 +243,9 @@ $(document).ready(() => {
             for (let j = 1; j < numCones+1; j++)
             {
                 var coneName = "cone" + j;
-                var dist1 = messageData["cone_dists"][coneName]["dist1"];
-                var dist2 = messageData["cone_dists"][coneName]["dist2"];
-                var dist3 = messageData["cone_dists"][coneName]["dist3"];
+                var dist1 = messageData["cone_ds"][coneName]["d1"];
+                var dist2 = messageData["cone_ds"][coneName]["d2"];
+                var dist3 = messageData["cone_ds"][coneName]["d3"];
                 existingDeviceData.trilaterate_calc(dist1, dist2, dist3, j-1);
             }
         } else {
@@ -261,9 +258,9 @@ $(document).ready(() => {
           for (let j = 1; j < numCones+1; j++)
           {
             var coneName = "cone" + j;
-            var dist1 = messageData["cone_dists"][coneName]["dist1"];
-            var dist2 = messageData["cone_dists"][coneName]["dist2"];
-            var dist3 = messageData["cone_dists"][coneName]["dist3"];
+            var dist1 = messageData["cone_ds"][coneName]["d1"];
+            var dist2 = messageData["cone_ds"][coneName]["d2"];
+            var dist3 = messageData["cone_ds"][coneName]["d3"];
             newDeviceData.trilaterate(dist1, dist2, dist3, j-1);
           }
 
